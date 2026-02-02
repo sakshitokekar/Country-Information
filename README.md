@@ -205,7 +205,6 @@ Try searching these countries:
 
 ## 📸 Demo
 
-_Add screenshots or a short GIF of the UI here after running locally._
 ![Website Preview](assets/WebsitePreview.png)
 ---
 

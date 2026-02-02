@@ -186,7 +186,6 @@ Try searching these countries:
 
 | Country | Region |
 |---------|--------|
-| India | Southern Asia |
 | United States | Northern America |
 | Japan | Eastern Asia |
 | France | Western Europe |

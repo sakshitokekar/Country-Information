@@ -1,0 +1,428 @@
+<html>
+
+<head>
+    <title>Country Info Using Netty</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        form {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        input[type="text"] {
+            padding: 15px 20px;
+            width: 400px;
+            max-width: 100%;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input[type="submit"] {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        input[type="submit"]:active {
+            transform: translateY(0);
+        }
+
+        #cardCenter {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        #cardCenter h1 {
+            font-size: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        #cardCenter h3 {
+            color: #666;
+            font-weight: 400;
+            font-size: 20px;
+            margin-bottom: 30px;
+        }
+
+        #flag {
+            max-width: 500px;
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+            margin: 20px 0;
+        }
+
+        .flag-description {
+            color: #888;
+            font-style: italic;
+            font-size: 14px;
+            max-width: 600px;
+            margin: 20px auto 0;
+            line-height: 1.6;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .info-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            align-items: center;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #333;
+            min-width: 140px;
+            font-size: 14px;
+        }
+
+        .info-value {
+            color: #666;
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .coat-of-arms {
+            max-width: 120px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+
+        .map-links {
+            margin-top: 15px;
+        }
+
+        .map-links a {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 13px;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
+
+        .map-links a:hover {
+            transform: scale(1.05);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.no {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        @media (max-width: 768px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            input[type="text"] {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            input[type="submit"] {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            #cardCenter h1 {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <form onsubmit="showInfo(event)">
+            <input type="text" id="countryName" placeholder="Enter country name..." required/>
+            <input type="submit" value="Search Country" />
+        </form>
+
+        <div id="cardCenter">
+            <h1 id="countryNameDisplay"></h1>
+            <h3 id="officialName"></h3>
+            <img id="flag" alt="Flag" width="25%" height="35%"/>
+            <p class="flag-description" id="flagDescription"></p>
+        </div>
+
+        <div class="cards-grid">
+            <div id="card1" class="card">
+                <h2>🌟 Essential Information</h2>
+                <div class="info-row">
+                    <span class="info-label">Capital:</span>
+                    <span class="info-value" id="capital"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Country Codes:</span>
+                    <span class="info-value" id="countryCodes"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Domain:</span>
+                    <span class="info-value" id="tld"></span>
+                </div>
+                <div style="text-align: center;">
+                    <img class="coat-of-arms" id="coatOfArms" alt="Coat of Arms" />
+                </div>
+            </div>
+
+            <div id="card2" class="card">
+                <h2>🌍 Geographic Information</h2>
+                <div class="info-row">
+                    <span class="info-label">Region:</span>
+                    <span class="info-value" id="region"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Subregion:</span>
+                    <span class="info-value" id="subregion"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Area:</span>
+                    <span class="info-value" id="area"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Landlocked:</span>
+                    <span class="info-value" id="landlocked"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Borders:</span>
+                    <span class="info-value" id="borders"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Coordinates:</span>
+                    <span class="info-value" id="coordinates"></span>
+                </div>
+                <div class="map-links">
+                    <a href="#" target="_blank" id="googleMaps">📍 Google Maps</a>
+                    <a href="#" target="_blank" id="openStreetMaps">🗺️ OpenStreetMap</a>
+                </div>
+            </div>
+
+            <div id="card3" class="card">
+                <h2>👥 People & Culture</h2>
+                <div class="info-row">
+                    <span class="info-label">Population:</span>
+                    <span class="info-value" id="population"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Languages:</span>
+                    <span class="info-value" id="languages"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Demonyms:</span>
+                    <span class="info-value" id="demonyms"></span>
+                </div>
+            </div>
+
+            <div id="card4" class="card">
+                <h2>💰 Economic & Administrative</h2>
+                <div class="info-row">
+                    <span class="info-label">Currencies:</span>
+                    <span class="info-value" id="currencies"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Calling Code:</span>
+                    <span class="info-value" id="callingCode"></span>
+                </div>
+            </div>
+
+            <div id="card5" class="card">
+                <h2>📋 Other Details</h2>
+                <div class="info-row">
+                    <span class="info-label">Timezone:</span>
+                    <span class="info-value" id="timezone"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Continent:</span>
+                    <span class="info-value" id="continent"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Driving Side:</span>
+                    <span class="info-value" id="drivingSide"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">UN Member:</span>
+                    <span class="info-value" id="unMember"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Independent:</span>
+                    <span class="info-value" id="independent"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">FIFA Code:</span>
+                    <span class="info-value" id="fifa"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    function showInfo(event) {
+        event.preventDefault();
+
+        const countryNameInput = document.getElementById("countryName");
+
+        const url = "http://localhost:8080/gci";
+        const body = JSON.stringify({ "countryName": countryNameInput.value });
+        const headers = { "Content-Type": "application/json" };
+        const options = { method: "POST", headers: headers, body: body };
+
+        fetch(url, options)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    populateCards(data);
+                } else {
+                    alert("Error: " + data.errmsg);
+                }
+            })
+            .catch(err => {
+                alert("Error: " + err);
+            });
+    }
+
+    function populateCards(data) {
+        // Card Center
+        document.getElementById("countryNameDisplay").textContent = data.countryName;
+        document.getElementById("officialName").textContent = data.officialName;
+        document.getElementById("flag").src = data.flagPath;
+        document.getElementById("flagDescription").textContent = data.flagDescription;
+
+        // Card 1 - Essential Information
+        document.getElementById("capital").textContent = data.capital;
+        document.getElementById("countryCodes").textContent = data.cca2 + " / " + data.cca3;
+        document.getElementById("tld").textContent = data.tld;
+        document.getElementById("coatOfArms").src = data.coatOfArms;
+
+        // Card 2 - Geographic Information
+        document.getElementById("region").textContent = data.region;
+        document.getElementById("subregion").textContent = data.subregion;
+        document.getElementById("area").textContent = Number(data.area).toLocaleString() + " km²";
+        document.getElementById("landlocked").innerHTML = data.landlocked
+            ? '<span class="badge">Yes</span>'
+            : '<span class="badge no">No</span>';
+        document.getElementById("borders").textContent = data.borders;
+        document.getElementById("coordinates").textContent = data.coordinates;
+        document.getElementById("googleMaps").href = data.googleMaps;
+        document.getElementById("openStreetMaps").href = data.openStreetMaps;
+
+        // Card 3 - People & Culture
+        document.getElementById("population").textContent = Number(data.population).toLocaleString();
+        document.getElementById("languages").textContent = data.languages;
+        document.getElementById("demonyms").textContent = data.demonyms;
+
+        // Card 4 - Economic & Administrative
+        document.getElementById("currencies").textContent = data.currencies;
+        document.getElementById("callingCode").textContent = data.callingCode;
+
+        // Card 5 - Other Details
+        document.getElementById("timezone").textContent = data.timezone;
+        document.getElementById("continent").textContent = data.continent;
+        document.getElementById("drivingSide").textContent = data.drivingSide.charAt(0).toUpperCase() + data.drivingSide.slice(1);
+        document.getElementById("unMember").innerHTML = data.unMember
+            ? '<span class="badge">Yes</span>'
+            : '<span class="badge no">No</span>';
+        document.getElementById("independent").innerHTML = data.independent
+            ? '<span class="badge">Yes</span>'
+            : '<span class="badge no">No</span>';
+        document.getElementById("fifa").textContent = data.fifa;
+    }
+</script>
+
+</html>
